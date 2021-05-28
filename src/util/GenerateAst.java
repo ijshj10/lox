@@ -18,6 +18,7 @@ public class GenerateAst {
                 "Binary : lox.Expr left, lox.Token operator, lox.Expr right",
                 "Grouping : lox.Expr expression",
                 "Literal : Object value",
+                "Logical : Expr left, Token operator, Expr right",
                 "Unary : lox.Token operator, lox.Expr right",
                 "Variable : Token name"
         ));
@@ -25,6 +26,8 @@ public class GenerateAst {
         defineAst(outputDir, "Stmt", Arrays.asList(
                 "Block : List<Stmt> statements",
                 "Expression: Expr expression",
+                "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
+                "While: Expr condition, Stmt body",
                 "Print : Expr expression",
                 "Var : Token name, Expr initializer"
         ));

@@ -98,6 +98,19 @@ public class Interpreter implements Expr.Visitor<Object>,
         return value;
     }
 
+    @Override
+    public Object visitLogicalExpr(Expr.Logical expr) {
+        Object left = evaluate(expr.left);
+
+        if (expr.operator.type == TokenType.OR) {
+            if (isTruthy(left)) return left;
+        } else {
+            if (!isTruthy(left)) return left;
+        }
+
+        return evaluate(expr.right);
+    }
+
     private boolean isTruthy(Object object) {
         if (object == null) return false;
         if (object instanceof Boolean) return (boolean) object;
@@ -163,16 +176,35 @@ public class Interpreter implements Expr.Visitor<Object>,
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
         Object value = null;
-        if(stmt.initializer != null) {
+        if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
         }
         environment.define(stmt.name.lexeme, value);
         return null;
     }
 
+    @Override
+    public Void visitIfStmt(Stmt.If stmt) {
+        Object condition = evaluate(stmt.condition);
+        if (isTruthy(condition)) {
+            execute(stmt.thenBranch);
+        } else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitWhileStmt(Stmt.While stmt) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body);
+        }
+        return null;
+    }
+
     void interpret(List<Stmt> statements) {
         try {
-            for(Stmt stmt : statements) {
+            for (Stmt stmt : statements) {
                 execute(stmt);
             }
         } catch (RuntimeError error) {
